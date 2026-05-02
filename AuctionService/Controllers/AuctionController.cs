@@ -1,6 +1,5 @@
 ﻿using AplicationLayer.DTO_s;
 using AplicationLayer.Interfaces.Service;
-using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AuctionService.Controllers
@@ -20,7 +19,7 @@ namespace AuctionService.Controllers
             var result = await _auctionService.Add(auction);
             if (result.IsSucceeded)
             {
-                return Created();
+                return Created(string.Empty, null);
             }
             return BadRequest(result);
         }
@@ -38,7 +37,7 @@ namespace AuctionService.Controllers
             }
         }
         [HttpGet("{id}")]
-        public async Task<IActionResult> GetById(int id)
+        public async Task<IActionResult> GetById(Guid id)
         {
             var result = await _auctionService.GetById(id);
             if (result.IsSucceeded)
@@ -57,7 +56,7 @@ namespace AuctionService.Controllers
             return BadRequest(result);
         }
         [HttpPut("{id}")]
-        public async Task<IActionResult> Update(int id, [FromBody] SaveAuctonDto auction)
+        public async Task<IActionResult> Update(Guid id, [FromBody] SaveAuctonDto auction)
         {
             var result = await _auctionService.Update(auction, id);
             if (result.IsSucceeded)
@@ -67,7 +66,7 @@ namespace AuctionService.Controllers
             return BadRequest(result);
         }
         [HttpDelete("{id}")]
-        public async Task<IActionResult> Delete(int id)
+        public async Task<IActionResult> Delete(Guid id)
         {
             var result = await _auctionService.Delete(id);
             if (result.IsSucceeded)

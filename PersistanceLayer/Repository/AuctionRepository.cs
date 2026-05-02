@@ -1,6 +1,9 @@
 ﻿using AplicationLayer.Interfaces.Repo;
+using AutoMapper;
+using CarHub_Contracts;
 using DomainLayer.Entities;
 using DomainLayer.OperationResult;
+using MassTransit;
 using Microsoft.EntityFrameworkCore;
 
 namespace PersistanceLayer.Repository
@@ -8,10 +11,14 @@ namespace PersistanceLayer.Repository
     public class AuctionRepository :  IAuctionRepository
     {
         private readonly Context _context;
+        private readonly IPublishEndpoint _publishedMessage;
         private readonly DbSet<Auction> _entity;
-        public AuctionRepository(Context context) 
+        private readonly IMapper _mapper;
+        public AuctionRepository(Context context, IPublishEndpoint published, IMapper mapper) 
         {
             _context = context;
+            _publishedMessage = published;
+            _mapper = mapper;
             _entity = context.Set<Auction>();
         }
 
@@ -21,8 +28,11 @@ namespace PersistanceLayer.Repository
             try
             {
                 await _entity.AddAsync(entity);
+                var evento = _mapper.Map<AuctionCreatedIntegrationEvent>(entity);
+                await _publishedMessage.Publish(evento);
                 await _context.SaveChangesAsync();
                 result.IsSucceeded = true;
+                result.Data = entity;
                 result.Message = "Entity added successfully";
             }
             catch (Exception ex)
@@ -33,7 +43,7 @@ namespace PersistanceLayer.Repository
             return result;
         }
 
-        public async Task<Result> Delete(int id)
+        public async Task<Result> Delete(Guid id)
         {
             Result result = new Result();
             try
@@ -47,6 +57,7 @@ namespace PersistanceLayer.Repository
                 else
                 {
                     _entity.Remove(entity);
+                    await _publishedMessage.Publish(new AuctionDeletedIntegrationEvent { Id = id });
                     await _context.SaveChangesAsync();
                     result.IsSucceeded = true;
                     result.Message = "Entity deleted successfully";
@@ -73,7 +84,7 @@ namespace PersistanceLayer.Repository
             }
         }
 
-        public  async Task<Result> GetById(int id)
+        public  async Task<Result> GetById(Guid id)
         {
             Result result = new Result();
             try
@@ -100,7 +111,7 @@ namespace PersistanceLayer.Repository
 
         }
 
-        public async Task<Result> Update(Auction entity, int entityId)
+        public async Task<Result> Update(Auction entity, Guid entityId)
         {
             var result = new Result();
 
@@ -117,6 +128,8 @@ namespace PersistanceLayer.Repository
                 entity.id = entityToUpdate.id;
                 entity.CreatedAt = entityToUpdate.CreatedAt;
                 _context.Entry(entityToUpdate).CurrentValues.SetValues(entity);
+                var evento = _mapper.Map<AuctionUpdatedIntegrationEvent>(entity);
+                await _publishedMessage.Publish(evento);
                 await _context.SaveChangesAsync();
 
                 result.IsSucceeded = true;

@@ -2,19 +2,24 @@
 using AplicationLayer.Interfaces.Repo;
 using AplicationLayer.Interfaces.Service;
 using AutoMapper;
+using CarHub_Contracts;
 using DomainLayer.Entities;
 using DomainLayer.OperationResult;
+using MassTransit;
+using MassTransit.Testing;
 
 namespace AplicationLayer.Service
 {
     public class AuctonService :  IAuctonService
     {
+        private readonly IPublishEndpoint _publishedMessage;
         private readonly IAuctionRepository _repository;
         private readonly IMapper _mapper;
-        public AuctonService(IAuctionRepository repository, IMapper mapper) 
+        public AuctonService(IAuctionRepository repository, IMapper mapper, IPublishEndpoint published) 
         {
             _repository = repository;
             _mapper = mapper;
+            _publishedMessage = published;
 
 
         }
@@ -30,6 +35,7 @@ namespace AplicationLayer.Service
                 mappedEntity.AuctionEnd = DateTime.SpecifyKind(mappedEntity.AuctionEnd, DateTimeKind.Utc);
                 mappedEntity.CreatedAt = DateTime.UtcNow;
                 result = await _repository.Add(mappedEntity);
+
             }
             catch (Exception ex)
             {
@@ -39,7 +45,7 @@ namespace AplicationLayer.Service
             return result;
         }
 
-        public async Task<Result> Delete(int id)
+        public async Task<Result> Delete(Guid id)
         {
             Result result = new Result();
             try
@@ -68,7 +74,7 @@ namespace AplicationLayer.Service
             }
         }
 
-        public async Task<Result> GetById(int id)
+        public async Task<Result> GetById(Guid id)
         {
             Result result = new Result();
             try
@@ -85,7 +91,7 @@ namespace AplicationLayer.Service
             return result;
         }
 
-        public async Task<Result> Update(SaveAuctonDto entity, int entityId)
+        public async Task<Result> Update(SaveAuctonDto entity, Guid entityId)
         {
             Result result = new Result();
             try

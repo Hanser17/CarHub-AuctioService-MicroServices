@@ -1,4 +1,6 @@
 ﻿
+using System.Text.Json.Serialization;
+
 namespace DomainLayer.Entities
 {
     public class Item : BaseEntity
@@ -11,7 +13,9 @@ namespace DomainLayer.Entities
         public string ImageUrl { get; set; }
 
         // Clave foránea que apunta a Auction
-        public int AuctionId { get; set; }
+        public Guid AuctionId { get; set; }
+
+        [JsonIgnore]
         public Auction Auction { get; set; }
 
     }

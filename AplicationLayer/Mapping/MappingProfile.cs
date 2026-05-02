@@ -2,6 +2,7 @@
 
 using AplicationLayer.DTO_s;
 using AutoMapper;
+using CarHub_Contracts;
 using DomainLayer.Entities;
 
 namespace AplicationLayer.Mapping
@@ -20,6 +21,12 @@ namespace AplicationLayer.Mapping
 
             CreateMap<Auction, SaveAuctonDto>()
                .ReverseMap();
+
+            CreateMap<Auction, AuctionCreatedIntegrationEvent>().ReverseMap();
+            CreateMap<Auction, AuctionUpdatedIntegrationEvent>().ReverseMap();
+            CreateMap<Item, Auction_Item>().ReverseMap();
+
+
         }
     }
 }

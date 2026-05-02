@@ -6,11 +6,11 @@ namespace AplicationLayer.Interfaces.Repo
 {
     public interface IAuctionRepository 
     {
-        Task<Result> GetById(int id);
+        Task<Result> GetById(Guid id);
         Task<IQueryable<Auction>> GetAll();
         Task<Result> Add(Auction entity);
-        Task<Result> Update(Auction entity, int entityId);
-        Task<Result> Delete(int id);
+        Task<Result> Update(Auction entity, Guid entityId);
+        Task<Result> Delete(Guid id);
 
     }
 }
