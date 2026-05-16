@@ -27,33 +27,13 @@ namespace AuctionService.Controllers
         public async Task<IActionResult> GetAll()
         {
             var result = await _auctionService.GetAllAsync();  
-            if (result != null && result.Any())  
-            {
-                return Ok(result);
-            }
-            else
-            {
-                return NoContent();
-            }
+            return result !=null && result.Any() ? Ok(result) : NoContent();    
         }
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById(Guid id)
         {
             var result = await _auctionService.GetById(id);
-            if (result.IsSucceeded)
-            {
-                if (result.Data == null){
-
-                    return NoContent(); 
-                } 
-                else 
-                { 
-                   return Ok(result.Data); 
-                
-                }
-               
-            }
-            return BadRequest(result);
+            return result.IsSucceeded ? Ok(result) : BadRequest(result);
         }
         [HttpPut("{id}")]
         public async Task<IActionResult> Update(Guid id, [FromBody] SaveAuctonDto auction)
